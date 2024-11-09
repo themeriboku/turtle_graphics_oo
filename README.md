@@ -1,5 +1,15 @@
-# OO code using turtle graphics
-- From the starting code, polygon_art.py, you are to write an OO program that generates different pieces of art works
-- Fork, then, clone this repo
-- Read the instructions given in the course's Google Classroom and start coding
-- Once you are done, push your final code to your Github repo and modify this README to report on the work you have done
+Generates artistic patterns with regular polygons (triangles, squares, pentagons).
+Supports overlapping polygons with multiple levels of embedded shapes.
+Provides an option to randomly mix different types of polygons in a single artwork.
+
+When prompted, enter a number between 1 and 9 to select the type of shapes to generate:
+
+1: Triangles
+2: Squares
+3: Pentagons
+4: Random regular polygons with 3 to 5 sides
+5: Overlapping triangles(have 2 smaller embedded triangles)
+6: Overlapping squares(have 2 smaller embedded shapes)
+7: Overlapping pentagons(have 2 smaller embedded shapes)
+8: Overlapping random polygons with 3 to 5 sides
+9: Random mix of all the above shapes

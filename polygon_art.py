@@ -1,52 +1,112 @@
 import turtle
 import random
 
-def draw_polygon(num_sides, size, orientation, location, color, border_size):
-    turtle.penup()
-    turtle.goto(location[0], location[1])
-    turtle.setheading(orientation)
-    turtle.color(color)
-    turtle.pensize(border_size)
-    turtle.pendown()
-    for _ in range(num_sides):
-        turtle.forward(size)
-        turtle.left(360/num_sides)
-    turtle.penup()
+class Polygon:
+    def __init__(self, num_sides, size, orientation, location, color, border_size):
+        self.num_sides = num_sides
+        self.size = size
+        self.orientation = orientation
+        self.location = location
+        self.color = color
+        self.border_size = border_size
 
-def get_new_color():
-    return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+    def draw(self):
+        turtle.penup()
+        turtle.goto(self.location[0], self.location[1])
+        turtle.setheading(self.orientation)
+        turtle.color(self.color)
+        turtle.pensize(self.border_size)
+        turtle.pendown()
+        for _ in range(self.num_sides):
+            turtle.forward(self.size)
+            turtle.left(360 / self.num_sides)
+        turtle.penup()
 
-turtle.speed(0)
-turtle.bgcolor('black')
-turtle.tracer(0)
-turtle.colormode(255)
+    def move(self, new_location):
+        self.location = new_location
 
-# draw a polygon at a random location, orientation, color, and border line thickness
-num_sides = random.randint(3, 5) # triangle, square, or pentagon
-size = random.randint(50, 150)
-orientation = random.randint(0, 90)
-location = [random.randint(-300, 300), random.randint(-200, 200)]
-color = get_new_color()
-border_size = random.randint(1, 10)
-draw_polygon(num_sides, size, orientation, location, color, border_size)
 
-# specify a reduction ratio to draw a smaller polygon inside the one above
-reduction_ratio = 0.618
+class PolygonArt:
+    def __init__(self, shape_type, num_shapes):
+        self.shape_type = shape_type
+        self.num_shapes = num_shapes
 
-# reposition the turtle and get a new location
-turtle.penup()
-turtle.forward(size*(1-reduction_ratio)/2)
-turtle.left(90)
-turtle.forward(size*(1-reduction_ratio)/2)
-turtle.right(90)
-location[0] = turtle.pos()[0]
-location[1] = turtle.pos()[1]
+    def get_new_color(self):
+        return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
-# adjust the size according to the reduction ratio
-size *= reduction_ratio
+    def get_shape_details(self, shape_type):
+        if shape_type == 1:
+            return 3, False
+        elif shape_type == 2:
+            return 4, False
+        elif shape_type == 3:
+            return 5, False
+        elif shape_type == 4:
+            return random.randint(3, 5), False
+        elif shape_type in [5, 6, 7]:
+            return shape_type - 2, True
+        elif shape_type == 8:
+            return random.randint(3, 5), True
 
-# draw the second polygon embedded inside the original 
-draw_polygon(num_sides, size, orientation, location, color, border_size)
+    def run(self):
+        for _ in range(self.num_shapes):
+            if self.shape_type == 9:
+                shape_type = random.randint(1, 8)  # Randomly select shape type for each shape
+            else:
+                shape_type = self.shape_type
 
-# hold the window; close it by clicking the window close 'x' mark
-turtle.done()
+            num_sides, overlap = self.get_shape_details(shape_type)
+            size = random.randint(60, 100)
+            orientation = random.randint(0, 360)
+            location = [random.randint(-100, 100), random.randint(-100, 100)]  # Smaller range for central position
+            color = self.get_new_color()
+            border_size = random.randint(1, 5)
+
+            if overlap:
+                polygon = EmbeddedPolygon(num_sides, size, orientation, location, color, border_size, 3, 0.618)
+            else:
+                polygon = Polygon(num_sides, size, orientation, location, color, border_size)
+            polygon.draw()
+
+
+class EmbeddedPolygon(Polygon):
+    def __init__(self, num_sides, size, orientation, location, color, border_size, num_levels, reduction_ratio):
+        super().__init__(num_sides, size, orientation, location, color, border_size)
+        self.num_levels = num_levels
+        self.reduction_ratio = reduction_ratio
+
+    def draw(self):
+        current_size = self.size
+        current_location = self.location[:]
+        for _ in range(self.num_levels):
+            super().draw()
+            turtle.penup()
+            turtle.forward(current_size * (1 - self.reduction_ratio) / 2)
+            turtle.left(90)
+            turtle.forward(current_size * (1 - self.reduction_ratio) / 2)
+            turtle.right(90)
+            current_location[0] = turtle.pos()[0]
+            current_location[1] = turtle.pos()[1]
+            current_size *= self.reduction_ratio
+            self.size = current_size
+            self.location = current_location
+
+
+def main():
+    shape_type = int(input("Which art do you want to generate? Enter a number between 1 to 9 inclusive: "))
+
+    turtle.speed(0)
+    turtle.bgcolor('black')
+    turtle.tracer(0)
+    turtle.colormode(255)
+
+    num_shapes = 20
+
+    art_generator = PolygonArt(shape_type, num_shapes)
+    art_generator.run()
+
+    turtle.done()
+
+
+if __name__ == "__main__":
+    main()
